@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0a0e1a;color:#e0e6f0;font-family:'Courier New',monospace;padding:14px;min-height:100vh}
+.hdr{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid #1e2d45}
+.logo{font-size:15px;font-weight:700;color:#00d4ff;letter-spacing:2px}.logo span{color:#ffd700}
+.tag{background:#1a2840;border:1px solid #00d4ff33;color:#00d4ff;font-size:9px;padding:2px 7px;border-radius:3px;letter-spacing:1px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
+.card{background:#0d1220;border:1px solid #1e2d45;border-radius:6px;padding:12px;margin-bottom:10px}
+.card-full{background:#0d1220;border:1px solid #1e2d45;border-radius:6px;padding:12px;margin-bottom:10px}
+.ctitle{font-size:9px;letter-spacing:2px;color:#4a6a8a;margin-bottom:10px;text-transform:uppercase}
+.signal-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.sbadge{display:inline-block;padding:6px 18px;border-radius:3px;font-size:13px;font-weight:700;letter-spacing:3px}
+.ssell{background:#ff004422;color:#ff4466;border:1px solid #ff446644}
+.sbuy{background:#00ff8822;color:#00ff88;border:1px solid #00ff8844}
+.lr{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #1e2d4533;font-size:11px}
+.lr:last-child{border-bottom:none}
+.ll{color:#4a6a8a;font-size:10px;letter-spacing:0.5px}
+.lv{color:#e0e6f0;font-weight:700;font-size:11px;text-align:right;max-width:65%}
+.lv.g{color:#00ff88}.lv.r{color:#ff4466}.lv.y{color:#ffd700}.lv.b{color:#00d4ff}
+.mc{background:#080c18;border:1px solid #1e2d45;border-radius:4px;padding:10px;text-align:center}
+.mv{font-size:18px;font-weight:700;margin-bottom:3px}
+.ml{font-size:9px;color:#4a6a8a;letter-spacing:1px}
+.rr-bar{background:#1e2d45;border-radius:3px;height:6px;margin-top:8px;overflow:hidden}
+.rr-fill{height:100%;border-radius:3px}
+.atxt{font-size:11px;color:#8aa0bc;line-height:1.8}
+.tags{display:flex;flex-wrap:wrap;gap:5px}
+.ctag{background:#1a2840;border:1px solid #1e3a5f;color:#4a6a8a;font-size:9px;padding:3px 8px;border-radius:3px;letter-spacing:1px}
+.ctag.on{background:#00d4ff22;border-color:#00d4ff55;color:#00d4ff}
+.ctag.sell{background:#ff446622;border-color:#ff446644;color:#ff4466}
+.price-box{background:#080c18;border-left:3px solid;border-radius:0 4px 4px 0;padding:8px 12px;margin:4px 0}
+.price-box.entry{border-color:#00d4ff}
+.price-box.sl{border-color:#ff4466}
+.price-box.tp{border-color:#00ff88}
+.pblabel{font-size:9px;color:#4a6a8a;letter-spacing:1px;margin-bottom:2px}
+.pbval{font-size:13px;font-weight:700}
+.ob-zone{background:#ffd70011;border:1px solid #ffd70033;border-radius:4px;padding:8px 12px;margin:4px 0}
+.fvg-zone{background:#00d4ff11;border:1px solid #00d4ff33;border-radius:4px;padding:8px 12px;margin:4px 0}
+.liq-zone{background:#ff446611;border:1px solid #ff446633;border-radius:4px;padding:8px 12px;margin:4px 0}
+.zone-label{font-size:9px;letter-spacing:1px;margin-bottom:2px}
+.zone-val{font-size:12px;font-weight:700}
+.analyze-btn{background:#00d4ff;color:#0a0e1a;border:none;padding:10px 24px;border-radius:4px;font-family:'Courier New',monospace;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:2px;width:100%;margin-top:10px}
+.analyze-btn:hover{background:#33ddff}
+.analyze-btn:disabled{background:#1e3a5f;color:#4a6a8a;cursor:not-allowed}
+.spin-wrap{display:none;text-align:center;padding:30px 0}
+.spin{width:32px;height:32px;border:2px solid #1e3a5f;border-top-color:#00d4ff;border-radius:50%;animation:sp 0.8s linear infinite;display:inline-block}
+@keyframes sp{to{transform:rotate(360deg)}}
+.stxt{font-size:10px;color:#4a6a8a;letter-spacing:1px;margin-top:10px}
+.err-box{background:#2a0a0f;border:1px solid #ff446633;border-radius:4px;padding:10px;font-size:11px;color:#ff8899;margin-top:10px;display:none}
+.drop-zone{background:#0d1525;border:2px dashed #1e3a5f;border-radius:6px;padding:24px;text-align:center;cursor:pointer;transition:border-color 0.2s}
+.drop-zone:hover{border-color:#00d4ff66}
+.drop-zone.has-img{border-color:#00d4ff44;border-style:solid}
+#imgPreview{width:100%;border-radius:6px;margin-bottom:10px;max-height:280px;object-fit:contain;display:none}
+.input-row{display:flex;gap:8px;margin-top:8px}
+.inp{background:#0d1525;border:1px solid #1e3a5f;color:#e0e6f0;font-size:11px;padding:7px 10px;border-radius:4px;font-family:'Courier New',monospace;width:100%}
+.inp:focus{outline:none;border-color:#00d4ff55}
+select.inp option{background:#0d1220}
+#resultSection{display:none;margin-top:14px}
+.key-row{display:flex;gap:8px;margin-bottom:14px}
+.key-input{flex:1;background:#0d1525;border:1px solid #1e3a5f;color:#e0e6f0;font-size:11px;padding:7px 10px;border-radius:4px;font-family:'Courier New',monospace}
+.key-input:focus{outline:none;border-color:#00d4ff55}
+.key-save{background:#1e3a5f;color:#00d4ff;border:1px solid #00d4ff44;padding:7px 14px;border-radius:4px;font-family:'Courier New',monospace;font-size:10px;font-weight:700;cursor:pointer;letter-spacing:1px;white-space:nowrap}
+.key-save:hover{background:#00d4ff22}
+.key-status{font-size:9px;margin-top:4px;letter-spacing:1px}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="logo">SMART<span>MONEY</span> AI</div>
+  <div class="tag">SMC ANALYSIS</div>
+  <div class="tag">ICT CONCEPTS</div>
+</div>
+
+<!-- API Key Section -->
+<div class="card-full">
+  <div class="ctitle">API Configuration</div>
+  <div class="key-row">
+    <input class="key-input" type="password" id="apiKeyInput" placeholder="Enter your Anthropic API key (sk-ant-...)"/>
+    <button class="key-save" onclick="saveKey()">SAVE KEY</button>
+  </div>
+  <div class="key-status" id="keyStatus" style="color:#4a6a8a">No key saved. Enter your API key above.</div>
+</div>
+
+<!-- Upload & Analyze -->
+<div class="card-full">
+  <div class="ctitle">Upload Chart for Analysis</div>
+  <img id="imgPreview" src="" alt="chart preview"/>
+  <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+    <div style="font-size:32px;opacity:0.35">📊</div>
+    <div style="font-size:11px;color:#4a6a8a;margin-top:8px">Click to upload chart image</div>
+    <div style="font-size:9px;color:#2a4a6a;margin-top:4px">PNG, JPG supported</div>
+    <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleChart(event)"/>
+  </div>
+  <div class="input-row">
+    <input type="text" id="pairInput" class="inp" placeholder="Pair e.g. XAUUSD" value="XAUUSD" style="max-width:160px"/>
+    <select id="tfInput" class="inp">
+      <option value="M1">M1 - 1 Min</option>
+      <option value="M5" selected>M5 - 5 Min</option>
+      <option value="M15">M15 - 15 Min</option>
+      <option value="M30">M30 - 30 Min</option>
+      <option value="H1">H1 - 1 Hour</option>
+      <option value="H4">H4 - 4 Hour</option>
+      <option value="D1">D1 - Daily</option>
+      <option value="W1">W1 - Weekly</option>
+    </select>
+  </div>
+  <button class="analyze-btn" id="analyzeBtn" onclick="analyzeChart()" disabled>▶ ANALYZE CHART</button>
+  <div class="err-box" id="errBox"></div>
+</div>
+
+<!-- Spinner -->
+<div class="spin-wrap" id="spinner">
+  <div class="spin"></div>
+  <div class="stxt" id="spTxt">SCANNING CHART...</div>
+</div>
+
+<!-- Result -->
+<div id="resultSection"></div>
+
+<script>
+let imgB64 = null;
+let imgMime = 'image/jpeg';
+let savedKey = '';
+
+const spMsgs = [
+  'SCANNING PRICE ACTION...','DETECTING ORDER BLOCKS...',
+  'MAPPING FVG ZONES...','LOCATING LIQUIDITY...',
+  'ANALYZING STRUCTURE...','CALCULATING LEVELS...',
+  'IDENTIFYING CHoCH...','MARKING KEY ZONES...'
+];
+let spInterval;
+
+function saveKey() {
+  const k = document.getElementById('apiKeyInput').value.trim();
+  if (!k.startsWith('sk-ant-')) {
+    setKeyStatus('⚠ Invalid key format. Must start with sk-ant-', '#ffd700');
+    return;
+  }
+  savedKey = k;
+  setKeyStatus('✓ API key saved for this session', '#00ff88');
+  document.getElementById('apiKeyInput').value = '•'.repeat(20) + k.slice(-6);
+  checkReady();
+}
+
+function setKeyStatus(msg, color) {
+  const el = document.getElementById('keyStatus');
+  el.textContent = msg;
+  el.style.color = color;
+}
+
+function handleChart(e) {
+  const f = e.target.files[0];
+  if (!f) return;
+  imgMime = f.type || 'image/jpeg';
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const result = ev.target.result;
+    imgB64 = result.split(',')[1];
+    const prev = document.getElementById('imgPreview');
+    prev.src = result;
+    prev.style.display = 'block';
+    document.getElementById('dropZone').classList.add('has-img');
+    document.getElementById('dropZone').style.padding = '0';
+    document.getElementById('dropZone').querySelector('div').style.display = 'none';
+    hideError();
+    checkReady();
+  };
+  reader.readAsDataURL(f);
+}
+
+function checkReady() {
+  const btn = document.getElementById('analyzeBtn');
+  btn.disabled = !(imgB64 && savedKey);
+}
+
+function hideError() {
+  document.getElementById('errBox').style.display = 'none';
+}
+
+function showError(msg) {
+  const eb = document.getElementById('errBox');
+  eb.style.display = 'block';
+  eb.textContent = '⚠ ' + msg;
+}
+
+async function analyzeChart() {
+  if (!imgB64 || !savedKey) return;
+  const pair = document.getElementById('pairInput').value.trim() || 'XAUUSD';
+  const tf = document.getElementById('tfInput').value;
+
+  document.getElementById('spinner').style.display = 'block';
+  document.getElementById('analyzeBtn').disabled = true;
+  document.getElementById('resultSection').style.display = 'none';
+  hideError();
+
+  let mi = 0;
+  spInterval = setInterval(() => {
+    document.getElementById('spTxt').textContent = spMsgs[mi++ % spMsgs.length];
+  }, 1400);
+
+  const prompt = `You are a professional Smart Money Concepts (SMC) and ICT trading analyst. Carefully analyze this ${pair} ${tf} chart.
+
+Identify all of: Order Blocks, Fair Value Gaps (FVG), Market Structure Shifts (MSS), Break of Structure (BOS), Change of Character (ChoCH), Liquidity sweeps (equal highs/lows), Inducement, Premium/Discount zones, Imbalances.
+
+Respond ONLY with a valid JSON object. No markdown, no backticks, no explanation outside the JSON:
+{"signal":"BUY or SELL or NO TRADE","bias":"BULLISH or BEARISH or NEUTRAL","entry":"entry price zone","sl":"stop loss price","tp1":"first target","tp2":"second target","tp3":"third target","rr":"risk reward e.g. 1:2.5","win_rate":"estimated e.g. 67%","mss":"describe MSS/BOS with prices","order_block":"OB zone with prices and type","fvg":"FVG price range","liquidity":"key liquidity levels above and below","premium_discount":"current zone description","concepts":["array","of","detected","concepts"],"analysis":"5-6 sentence detailed analysis with specific price levels, entry reasoning, structure context, and risk note"}`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': savedKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-opus-4-5',
+        max_tokens: 1200,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: imgMime, data: imgB64 } },
+            { type: 'text', text: prompt }
+          ]
+        }]
+      })
+    });
+
+    clearInterval(spInterval);
+    document.getElementById('spinner').style.display = 'none';
+    document.getElementById('analyzeBtn').disabled = false;
+
+    if (!resp.ok) {
+      let errMsg = 'HTTP ' + resp.status;
+      try {
+        const errData = await resp.json();
+        errMsg = errData.error?.message || errMsg;
+      } catch(e) {}
+      showError(errMsg);
+      return;
+    }
+
+    const data = await resp.json();
+    let raw = (data.content || []).map(i => i.text || '').join('');
+    // Strip any markdown fences
+    raw = raw.replace(/```json|```/g, '').trim();
+    // Find the JSON object
+    const start = raw.indexOf('{');
+    const end = raw.lastIndexOf('}');
+    if (start === -1 || end === -1) throw new Error('No JSON found in response');
+    raw = raw.slice(start, end + 1);
+    const d = JSON.parse(raw);
+    renderResult(d, pair, tf);
+
+  } catch(err) {
+    clearInterval(spInterval);
+    document.getElementById('spinner').style.display = 'none';
+    document.getElementById('analyzeBtn').disabled = false;
+    showError(err.message || 'Unknown error occurred');
+  }
+}
+
+function renderResult(d, pair, tf) {
+  const sig = (d.signal || 'NO TRADE').toUpperCase();
+  const isBuy = sig === 'BUY';
+  const isSell = sig === 'SELL';
+  const badgeStyle = isBuy
+    ? 'background:#00ff8822;color:#00ff88;border:1px solid #00ff8844'
+    : isSell
+    ? 'background:#ff004422;color:#ff4466;border:1px solid #ff446644'
+    : 'background:#ffd70022;color:#ffd700;border:1px solid #ffd70044';
+  const biasColor = isBuy ? 'g' : isSell ? 'r' : 'y';
+  const wr = parseFloat((d.win_rate||'0').replace('%','')) || 0;
+  const wrColor = wr >= 65 ? '#00ff88' : wr >= 50 ? '#ffd700' : '#ff4466';
+  const concepts = Array.isArray(d.concepts) ? d.concepts : [];
+  const tags = concepts.map(c => `<span class="ctag on">${c}</span>`).join('');
+
+  const html = `
+  <div class="card-full">
+    <div class="ctitle">${pair} · ${tf} — Analysis Result</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <span style="${badgeStyle};display:inline-block;padding:8px 20px;border-radius:3px;font-size:14px;font-weight:700;letter-spacing:3px">${sig}</span>
+      <div style="text-align:right">
+        <div style="font-size:24px;font-weight:700;color:${wrColor}">${d.win_rate||'—'}</div>
+        <div style="font-size:9px;color:#4a6a8a;letter-spacing:1px">WIN PROBABILITY</div>
+      </div>
+    </div>
+    <div style="background:#1e2d45;border-radius:3px;height:5px;margin-bottom:14px;overflow:hidden">
+      <div style="height:100%;border-radius:3px;background:${wrColor};width:${wr}%"></div>
+    </div>
+    <div class="grid3" style="margin-bottom:12px">
+      <div class="mc"><div class="mv b">${d.rr||'—'}</div><div class="ml">R:R RATIO</div></div>
+      <div class="mc"><div class="mv ${biasColor}">${(d.bias||'—').slice(0,4)}</div><div class="ml">BIAS</div></div>
+      <div class="mc"><div class="mv y">${(d.premium_discount||'DISC').includes('PREM')?'PREM':'DISC'}</div><div class="ml">ZONE</div></div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div>
+      <div class="card">
+        <div class="ctitle">Entry / SL / Targets</div>
+        <div class="price-box entry"><div class="pblabel">ENTRY ZONE</div><div class="pbval" style="color:#00d4ff">${d.entry||'—'}</div></div>
+        <div class="price-box sl"><div class="pblabel">STOP LOSS</div><div class="pbval" style="color:#ff4466">${d.sl||'—'}</div></div>
+        <div class="price-box tp"><div class="pblabel">TAKE PROFIT 1</div><div class="pbval" style="color:#00ff88">${d.tp1||'—'}</div></div>
+        <div class="price-box tp"><div class="pblabel">TAKE PROFIT 2</div><div class="pbval" style="color:#00ff88">${d.tp2||'—'}</div></div>
+        <div class="price-box tp"><div class="pblabel">TAKE PROFIT 3</div><div class="pbval" style="color:#00ff88">${d.tp3||'—'}</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="ctitle">SMC Key Zones</div>
+        <div class="ob-zone">
+          <div class="zone-label" style="color:#ffd700">🟡 ORDER BLOCK</div>
+          <div class="zone-val" style="color:#ffd700">${d.order_block||'—'}</div>
+        </div>
+        <div class="fvg-zone">
+          <div class="zone-label" style="color:#00d4ff">🔵 FAIR VALUE GAP</div>
+          <div class="zone-val" style="color:#00d4ff">${d.fvg||'—'}</div>
+        </div>
+        <div class="liq-zone">
+          <div class="zone-label" style="color:#ff4466">🔴 LIQUIDITY</div>
+          <div class="zone-val" style="color:#ff4466">${d.liquidity||'—'}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-full">
+    <div class="ctitle">Market Structure</div>
+    <div class="lr"><span class="ll">MSS / BOS</span><span class="lv y">${d.mss||'—'}</span></div>
+    <div class="lr"><span class="ll">PREMIUM/DISCOUNT</span><span class="lv b">${d.premium_discount||'—'}</span></div>
+  </div>
+
+  <div class="card-full">
+    <div class="ctitle">SMC Concepts Detected</div>
+    <div class="tags">${tags || '<span style="color:#4a6a8a;font-size:10px">None detected</span>'}</div>
+  </div>
+
+  <div class="card-full">
+    <div class="ctitle">AI Analysis</div>
+    <div class="atxt">${(d.analysis||'No analysis available.').replace(/\n/g,'<br/>')}</div>
+    <div style="margin-top:12px;padding:8px 12px;background:#2a1a0a;border:1px solid #ffd70033;border-radius:4px;font-size:9px;color:#ffd700;letter-spacing:0.5px">
+      ⚠ This is AI-generated analysis for educational purposes only. Not financial advice. Always use proper risk management.
+    </div>
+  </div>`;
+
+  const section = document.getElementById('resultSection');
+  section.innerHTML = html;
+  section.style.display = 'block';
+  section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+</script>
+</body>
+</html>
