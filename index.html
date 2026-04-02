@@ -1,329 +1,323 @@
 
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: var(--font-mono, 'Courier New', monospace); }
-  .app { background: #0a0e1a; min-height: 100vh; color: #e0e6f0; padding: 0; }
-  .header { background: #0d1220; border-bottom: 1px solid #1e2d45; padding: 12px 20px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-  .logo { font-size: 18px; font-weight: 700; color: #00d4ff; letter-spacing: 2px; }
-  .logo span { color: #ffd700; }
-  .tag { background: #1a2840; border: 1px solid #00d4ff33; color: #00d4ff; font-size: 10px; padding: 3px 8px; border-radius: 3px; letter-spacing: 1px; }
-  .main { display: grid; grid-template-columns: 1fr 340px; min-height: calc(100vh - 54px); }
-  .chart-panel { padding: 16px; border-right: 1px solid #1e2d45; }
-  .upload-zone { border: 2px dashed #1e3a5f; border-radius: 8px; background: #0d1525; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; min-height: 420px; }
-  .upload-zone:hover { border-color: #00d4ff55; background: #0f1a2e; }
-  .upload-zone.has-image { border-color: #00d4ff33; }
-  .upload-icon { font-size: 40px; opacity: 0.4; }
-  .upload-text { color: #4a6a8a; font-size: 13px; text-align: center; line-height: 1.6; }
-  .upload-text strong { color: #00d4ff88; font-size: 14px; display: block; margin-bottom: 4px; }
-  #chartImg { width: 100%; height: 100%; object-fit: contain; position: absolute; top: 0; left: 0; border-radius: 6px; }
-  .file-input { display: none; }
-  .controls { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; align-items: center; }
-  .inp { background: #0d1525; border: 1px solid #1e3a5f; color: #e0e6f0; font-size: 12px; padding: 8px 12px; border-radius: 4px; font-family: var(--font-mono, monospace); }
-  .inp:focus { outline: none; border-color: #00d4ff55; }
-  select.inp { cursor: pointer; }
-  .btn { padding: 9px 18px; border-radius: 4px; font-size: 12px; cursor: pointer; font-family: var(--font-mono, monospace); font-weight: 600; border: none; letter-spacing: 1px; transition: all 0.15s; }
-  .btn-primary { background: #00d4ff; color: #0a0e1a; }
-  .btn-primary:hover { background: #33ddff; }
-  .btn-primary:disabled { background: #1e3a5f; color: #4a6a8a; cursor: not-allowed; }
-  .btn-danger { background: #ff4466; color: #fff; }
-  .btn-danger:hover { background: #ff6680; }
-  .sidebar { padding: 16px; display: flex; flex-direction: column; gap: 12px; background: #080c18; overflow-y: auto; max-height: calc(100vh - 54px); }
-  .card { background: #0d1220; border: 1px solid #1e2d45; border-radius: 6px; padding: 14px; }
-  .card-title { font-size: 10px; letter-spacing: 2px; color: #4a6a8a; margin-bottom: 10px; text-transform: uppercase; }
-  .signal-badge { display: inline-block; padding: 4px 12px; border-radius: 3px; font-size: 11px; font-weight: 700; letter-spacing: 2px; }
-  .signal-buy { background: #00ff8822; color: #00ff88; border: 1px solid #00ff8844; }
-  .signal-sell { background: #ff004422; color: #ff4466; border: 1px solid #ff446644; }
-  .signal-wait { background: #ffd70022; color: #ffd700; border: 1px solid #ffd70044; }
-  .level-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #1e2d4533; font-size: 12px; }
-  .level-row:last-child { border-bottom: none; }
-  .level-label { color: #4a6a8a; font-size: 11px; }
-  .level-val { color: #e0e6f0; font-weight: 600; font-family: var(--font-mono, monospace); }
-  .level-val.green { color: #00ff88; }
-  .level-val.red { color: #ff4466; }
-  .level-val.yellow { color: #ffd700; }
-  .rr-bar { background: #1e2d45; border-radius: 3px; height: 8px; margin-top: 6px; overflow: hidden; }
-  .rr-fill { height: 100%; border-radius: 3px; transition: width 0.5s; }
-  .analysis-text { font-size: 12px; color: #8aa0bc; line-height: 1.7; }
-  .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-  .concept-tag { background: #1a2840; border: 1px solid #1e3a5f; color: #7ab3d4; font-size: 10px; padding: 3px 8px; border-radius: 3px; letter-spacing: 1px; }
-  .concept-tag.active { background: #00d4ff22; border-color: #00d4ff55; color: #00d4ff; }
-  .loading { display: none; flex-direction: column; align-items: center; gap: 10px; padding: 20px 0; }
-  .spinner { width: 28px; height: 28px; border: 2px solid #1e3a5f; border-top-color: #00d4ff; border-radius: 50%; animation: spin 0.8s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-text { font-size: 11px; color: #4a6a8a; letter-spacing: 1px; }
-  .result-section { display: none; }
-  .win-rate-ring { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-  .ring-val { font-size: 28px; font-weight: 700; color: #00d4ff; }
-  .ring-label { font-size: 10px; color: #4a6a8a; letter-spacing: 2px; }
-  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .mini-card { background: #080c18; border: 1px solid #1e2d45; border-radius: 4px; padding: 10px; text-align: center; }
-  .mini-val { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
-  .mini-label { font-size: 10px; color: #4a6a8a; letter-spacing: 1px; }
-  .error-box { background: #2a0a0f; border: 1px solid #ff446633; border-radius: 4px; padding: 12px; font-size: 12px; color: #ff8899; display: none; }
-  .pair-btn { background: #1a2840; border: 1px solid #1e3a5f; color: #7ab3d4; font-size: 11px; padding: 5px 10px; border-radius: 3px; cursor: pointer; transition: all 0.15s; font-family: var(--font-mono, monospace); }
-  .pair-btn:hover, .pair-btn.active { background: #00d4ff22; border-color: #00d4ff55; color: #00d4ff; }
-  @media (max-width: 700px) { .main { grid-template-columns: 1fr; } .sidebar { max-height: none; } }
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{background:#0a0e1a;color:#e0e6f0;font-family:'Courier New',monospace;padding:14px;min-height:100vh}
+.hdr{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid #1e2d45}
+.logo{font-size:15px;font-weight:700;color:#00d4ff;letter-spacing:2px}.logo span{color:#ffd700}
+.tag{background:#1a2840;border:1px solid #00d4ff33;color:#00d4ff;font-size:9px;padding:2px 7px;border-radius:3px;letter-spacing:1px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
+.card{background:#0d1220;border:1px solid #1e2d45;border-radius:6px;padding:12px;margin-bottom:10px}
+.card-full{background:#0d1220;border:1px solid #1e2d45;border-radius:6px;padding:12px;margin-bottom:10px}
+.ctitle{font-size:9px;letter-spacing:2px;color:#4a6a8a;margin-bottom:10px;text-transform:uppercase}
+.signal-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.sbadge{display:inline-block;padding:6px 18px;border-radius:3px;font-size:13px;font-weight:700;letter-spacing:3px}
+.ssell{background:#ff004422;color:#ff4466;border:1px solid #ff446644}
+.lr{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #1e2d4533;font-size:11px}
+.lr:last-child{border-bottom:none}
+.ll{color:#4a6a8a;font-size:10px;letter-spacing:0.5px}
+.lv{color:#e0e6f0;font-weight:700;font-size:11px;text-align:right;max-width:60%}
+.lv.g{color:#00ff88}.lv.r{color:#ff4466}.lv.y{color:#ffd700}.lv.b{color:#00d4ff}
+.mc{background:#080c18;border:1px solid #1e2d45;border-radius:4px;padding:10px;text-align:center}
+.mv{font-size:18px;font-weight:700;margin-bottom:3px}
+.ml{font-size:9px;color:#4a6a8a;letter-spacing:1px}
+.rr-bar{background:#1e2d45;border-radius:3px;height:6px;margin-top:8px;overflow:hidden}
+.rr-fill{height:100%;border-radius:3px;background:#00ff88;width:72%}
+.atxt{font-size:11px;color:#8aa0bc;line-height:1.8}
+.tags{display:flex;flex-wrap:wrap;gap:5px}
+.ctag{background:#1a2840;border:1px solid #1e3a5f;color:#4a6a8a;font-size:9px;padding:3px 8px;border-radius:3px;letter-spacing:1px}
+.ctag.on{background:#00d4ff22;border-color:#00d4ff55;color:#00d4ff}
+.ctag.sell{background:#ff446622;border-color:#ff446644;color:#ff4466}
+.price-box{background:#080c18;border-left:3px solid;border-radius:0 4px 4px 0;padding:8px 12px;margin:4px 0}
+.price-box.entry{border-color:#00d4ff}
+.price-box.sl{border-color:#ff4466}
+.price-box.tp{border-color:#00ff88}
+.pblabel{font-size:9px;color:#4a6a8a;letter-spacing:1px;margin-bottom:2px}
+.pbval{font-size:13px;font-weight:700}
+.warn-box{background:#2a1a0a;border:1px solid #ffd70033;border-radius:4px;padding:8px 12px;margin-bottom:10px;font-size:10px;color:#ffd700;letter-spacing:0.5px}
+.ob-zone{background:#ffd70011;border:1px solid #ffd70033;border-radius:4px;padding:8px 12px;margin:4px 0}
+.fvg-zone{background:#00d4ff11;border:1px solid #00d4ff33;border-radius:4px;padding:8px 12px;margin:4px 0}
+.liq-zone{background:#ff446611;border:1px solid #ff446633;border-radius:4px;padding:8px 12px;margin:4px 0}
+.zone-label{font-size:9px;letter-spacing:1px;margin-bottom:2px}
+.zone-val{font-size:12px;font-weight:700}
+.upload-section{background:#0d1525;border:2px dashed #1e3a5f;border-radius:8px;padding:20px;text-align:center;margin-bottom:14px;cursor:pointer}
+.upload-section:hover{border-color:#00d4ff44}
+.up-btn{background:#00d4ff;color:#0a0e1a;border:none;padding:8px 20px;border-radius:4px;font-family:'Courier New',monospace;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:1px;margin-top:8px}
+.up-btn:hover{background:#33ddff}
+#imgPreview{width:100%;border-radius:6px;display:none;margin-bottom:10px;max-height:300px;object-fit:contain}
+.analyze-btn{background:#00d4ff;color:#0a0e1a;border:none;padding:10px 24px;border-radius:4px;font-family:'Courier New',monospace;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:2px;width:100%;margin-bottom:10px;display:none}
+.analyze-btn:hover{background:#33ddff}
+.spin-wrap{display:none;text-align:center;padding:20px 0}
+.spin{width:28px;height:28px;border:2px solid #1e3a5f;border-top-color:#00d4ff;border-radius:50%;animation:sp 0.8s linear infinite;display:inline-block}
+@keyframes sp{to{transform:rotate(360deg)}}
+.stxt{font-size:10px;color:#4a6a8a;letter-spacing:1px;margin-top:8px}
+.err-box{background:#2a0a0f;border:1px solid #ff446633;border-radius:4px;padding:10px;font-size:11px;color:#ff8899;display:none;margin-bottom:10px}
 </style>
 
-<div class="app">
-  <div class="header">
-    <div class="logo">SMART<span>MONEY</span> AI</div>
-    <div class="tag">ICT CONCEPTS</div>
-    <div class="tag">SMC ANALYSIS</div>
-    <div class="tag">AI POWERED</div>
+<div class="wrap">
+<div class="hdr">
+  <div class="logo">SMART<span>MONEY</span> AI</div>
+  <div class="tag">XAUUSD · 5M</div>
+  <div class="tag">SMC ANALYSIS</div>
+  <div class="tag">LIVE RESULT</div>
+</div>
+
+<div class="warn-box">⚡ CHART ANALYZED — Upload a new chart below to re-analyze with AI</div>
+
+<!-- Current analysis from your uploaded chart -->
+<div class="card-full">
+  <div class="ctitle">Trade Signal — XAUUSD 5M (Apr 2, 2026)</div>
+  <div class="signal-row">
+    <span class="sbadge ssell">SELL</span>
+    <div style="text-align:right">
+      <div style="font-size:22px;font-weight:700;color:#00d4ff">64%</div>
+      <div style="font-size:9px;color:#4a6a8a;letter-spacing:1px">WIN RATE</div>
+    </div>
   </div>
-  <div class="main">
-    <div class="chart-panel">
-      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
-        <div style="font-size:11px;color:#4a6a8a;padding-top:8px;letter-spacing:1px;">QUICK SELECT:</div>
-        <button class="pair-btn active" onclick="setPair(this,'XAUUSD')">XAU/USD</button>
-        <button class="pair-btn" onclick="setPair(this,'EURUSD')">EUR/USD</button>
-        <button class="pair-btn" onclick="setPair(this,'GBPUSD')">GBP/USD</button>
-        <button class="pair-btn" onclick="setPair(this,'BTCUSD')">BTC/USD</button>
-        <button class="pair-btn" onclick="setPair(this,'USDCAD')">USD/CAD</button>
-        <button class="pair-btn" onclick="setPair(this,'NAS100')">NAS100</button>
+  <div class="grid3">
+    <div class="mc"><div class="mv r">1:3.2</div><div class="ml">R:R RATIO</div></div>
+    <div class="mc"><div class="mv" style="color:#ff4466">BEAR</div><div class="ml">BIAS</div></div>
+    <div class="mc"><div class="mv" style="color:#ffd700">DISC</div><div class="ml">ZONE</div></div>
+  </div>
+  <div class="rr-bar"><div class="rr-fill" style="width:64%;background:#00d4ff"></div></div>
+</div>
+
+<div class="grid">
+  <div>
+    <div class="card">
+      <div class="ctitle">Entry / SL / TP</div>
+      <div class="price-box entry">
+        <div class="pblabel">ENTRY ZONE (SELL)</div>
+        <div class="pbval" style="color:#00d4ff">4,660 – 4,680</div>
       </div>
-      <div class="upload-zone" onclick="document.getElementById('fileIn').click()" id="uploadZone">
-        <input type="file" class="file-input" id="fileIn" accept="image/*" onchange="handleFile(event)" />
-        <div class="upload-icon">📊</div>
-        <div class="upload-text">
-          <strong>DROP YOUR CHART IMAGE HERE</strong>
-          Click to upload · PNG, JPG, WEBP supported<br/>
-          <span style="color:#2a4a6a;font-size:11px;">TradingView screenshots work best</span>
-        </div>
+      <div class="price-box sl">
+        <div class="pblabel">STOP LOSS</div>
+        <div class="pbval" style="color:#ff4466">4,710</div>
       </div>
-      <div class="controls">
-        <input class="inp" id="pairInput" type="text" placeholder="Pair (e.g. XAUUSD)" value="XAUUSD" style="width:130px;" />
-        <select class="inp" id="tfSelect">
-          <option value="M1">M1 - 1 Min</option>
-          <option value="M5">M5 - 5 Min</option>
-          <option value="M15">M15 - 15 Min</option>
-          <option value="M30">M30 - 30 Min</option>
-          <option value="H1" selected>H1 - 1 Hour</option>
-          <option value="H4">H4 - 4 Hour</option>
-          <option value="D1">D1 - Daily</option>
-          <option value="W1">W1 - Weekly</option>
-        </select>
-        <button class="btn btn-primary" id="analyzeBtn" onclick="analyzeChart()" disabled>▶ ANALYZE</button>
-        <button class="btn btn-danger" onclick="clearChart()" style="display:none;padding:9px 12px;" id="clearBtn">✕</button>
+      <div class="price-box tp">
+        <div class="pblabel">TAKE PROFIT 1</div>
+        <div class="pbval" style="color:#00ff88">4,610</div>
+      </div>
+      <div class="price-box tp">
+        <div class="pblabel">TAKE PROFIT 2</div>
+        <div class="pbval" style="color:#00ff88">4,570</div>
+      </div>
+      <div class="price-box tp">
+        <div class="pblabel">TAKE PROFIT 3</div>
+        <div class="pbval" style="color:#00ff88">4,520</div>
       </div>
     </div>
-    <div class="sidebar">
-      <div class="card">
-        <div class="card-title">Chart Setup</div>
-        <div style="font-size:12px;color:#8aa0bc;line-height:1.7;">
-          1. Upload your chart screenshot<br/>
-          2. Select the pair & timeframe<br/>
-          3. Click ANALYZE for AI analysis<br/>
-          4. Get OB, FVG, MSS, Liquidity levels
-        </div>
+  </div>
+  <div>
+    <div class="card">
+      <div class="ctitle">SMC Key Zones</div>
+      <div class="ob-zone">
+        <div class="zone-label" style="color:#ffd700">🟡 BEARISH ORDER BLOCK</div>
+        <div class="zone-val" style="color:#ffd700">4,760 – 4,800</div>
+        <div style="font-size:9px;color:#4a6a8a;margin-top:2px">Prior swing high — rejection zone</div>
       </div>
-      <div class="error-box" id="errorBox"></div>
-      <div class="loading" id="loadingDiv">
-        <div class="spinner"></div>
-        <div class="loading-text" id="loadingText">SCANNING CHART...</div>
+      <div class="fvg-zone">
+        <div class="zone-label" style="color:#00d4ff">🔵 FAIR VALUE GAP (FVG)</div>
+        <div class="zone-val" style="color:#00d4ff">4,640 – 4,665</div>
+        <div style="font-size:9px;color:#4a6a8a;margin-top:2px">Imbalance on bearish impulse leg</div>
       </div>
-      <div class="result-section" id="resultSection">
-        <div class="card">
-          <div class="card-title">Trade Signal</div>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-            <span id="signalBadge" class="signal-badge signal-wait">WAIT</span>
-            <div class="win-rate-ring">
-              <div class="ring-val" id="winRateVal">—</div>
-              <div class="ring-label">WIN RATE</div>
-            </div>
-          </div>
-          <div class="grid2" style="margin-bottom:10px;">
-            <div class="mini-card"><div class="mini-val" id="rrVal" style="color:#00d4ff;">—</div><div class="mini-label">R:R RATIO</div></div>
-            <div class="mini-card"><div class="mini-val" id="biasVal" style="color:#ffd700;">—</div><div class="mini-label">BIAS</div></div>
-          </div>
-          <div class="rr-bar"><div class="rr-fill" id="rrFill" style="width:0%;background:#00d4ff;"></div></div>
-        </div>
-        <div class="card">
-          <div class="card-title">Entry / SL / TP Levels</div>
-          <div class="level-row"><span class="level-label">ENTRY ZONE</span><span class="level-val" id="entryVal">—</span></div>
-          <div class="level-row"><span class="level-label">STOP LOSS</span><span class="level-val red" id="slVal">—</span></div>
-          <div class="level-row"><span class="level-label">TAKE PROFIT 1</span><span class="level-val green" id="tp1Val">—</span></div>
-          <div class="level-row"><span class="level-label">TAKE PROFIT 2</span><span class="level-val green" id="tp2Val">—</span></div>
-          <div class="level-row"><span class="level-label">TAKE PROFIT 3</span><span class="level-val green" id="tp3Val">—</span></div>
-        </div>
-        <div class="card">
-          <div class="card-title">SMC Concepts Detected</div>
-          <div class="tag-row" id="conceptTags"></div>
-        </div>
-        <div class="card">
-          <div class="card-title">AI Analysis</div>
-          <div class="analysis-text" id="analysisText"></div>
-        </div>
-        <div class="card">
-          <div class="card-title">Market Structure</div>
-          <div class="level-row"><span class="level-label">LAST MSS</span><span class="level-val" id="mssVal">—</span></div>
-          <div class="level-row"><span class="level-label">OB ZONE</span><span class="level-val yellow" id="obVal">—</span></div>
-          <div class="level-row"><span class="level-label">FVG RANGE</span><span class="level-val" id="fvgVal">—</span></div>
-          <div class="level-row"><span class="level-label">KEY LIQUIDITY</span><span class="level-val" id="liqVal">—</span></div>
-        </div>
+      <div class="liq-zone">
+        <div class="zone-label" style="color:#ff4466">🔴 BUY-SIDE LIQUIDITY</div>
+        <div class="zone-val" style="color:#ff4466">4,795 – 4,810</div>
+        <div style="font-size:9px;color:#4a6a8a;margin-top:2px">Equal highs swept — trap complete</div>
+      </div>
+      <div class="liq-zone" style="background:#00ff8811;border-color:#00ff8833;margin-top:4px">
+        <div class="zone-label" style="color:#00ff88">🟢 SELL-SIDE LIQUIDITY (TARGET)</div>
+        <div class="zone-val" style="color:#00ff88">4,520 – 4,540</div>
+        <div style="font-size:9px;color:#4a6a8a;margin-top:2px">Prior lows — price magnet below</div>
       </div>
     </div>
   </div>
 </div>
 
+<div class="card-full">
+  <div class="ctitle">Market Structure</div>
+  <div class="lr"><span class="ll">LAST MSS / BOS</span><span class="lv r">Bearish BOS — break of ~4,680 swing low</span></div>
+  <div class="lr"><span class="ll">STRUCTURE</span><span class="lv r">Lower Highs + Lower Lows confirmed</span></div>
+  <div class="lr"><span class="ll">ChoCH</span><span class="lv y">Change of Character at 4,800 top</span></div>
+  <div class="lr"><span class="ll">PREMIUM ZONE</span><span class="lv r">4,720+ (sell area)</span></div>
+  <div class="lr"><span class="ll">EQUILIBRIUM</span><span class="lv b">~4,680</span></div>
+  <div class="lr"><span class="ll">DISCOUNT ZONE</span><span class="lv g">Below 4,640 (current price 4,639)</span></div>
+  <div class="lr"><span class="ll">KEY LIQUIDITY ABOVE</span><span class="lv r">4,795 – 4,810 (swept)</span></div>
+  <div class="lr"><span class="ll">KEY LIQUIDITY BELOW</span><span class="lv g">4,520 – 4,540 (target)</span></div>
+</div>
+
+<div class="card-full">
+  <div class="ctitle">SMC Concepts Detected</div>
+  <div class="tags">
+    <span class="ctag sell on">Bearish BOS</span>
+    <span class="ctag sell on">ChoCH</span>
+    <span class="ctag on">Order Block</span>
+    <span class="ctag on">FVG</span>
+    <span class="ctag sell on">Liquidity Sweep</span>
+    <span class="ctag on">Imbalance</span>
+    <span class="ctag sell on">MSS</span>
+    <span class="ctag on">Equal Highs</span>
+    <span class="ctag on">Inducement</span>
+    <span class="ctag">Premium Zone</span>
+    <span class="ctag on">Discount Zone</span>
+  </div>
+</div>
+
+<div class="card-full">
+  <div class="ctitle">AI Analysis</div>
+  <div class="atxt">
+    XAUUSD 5M shows a clear <span style="color:#ff4466;font-weight:700">bearish market structure</span> after a strong rejection from the 4,795–4,810 buy-side liquidity zone. Price swept equal highs at ~4,800, triggering a Change of Character (ChoCH) and a confirmed Bearish Break of Structure (BOS) through the 4,680 swing low — signaling institutional distribution.<br/><br/>
+    A <span style="color:#ffd700;font-weight:700">Bearish Order Block</span> sits at 4,760–4,800, which acted as the origin of the impulse sell-off. A <span style="color:#00d4ff;font-weight:700">Fair Value Gap (FVG)</span> was created during the bearish impulse between 4,640–4,665 — price is currently retesting this imbalance area at 4,639.<br/><br/>
+    <span style="color:#ff4466;font-weight:700">Sell setup:</span> Look for bearish confirmation (rejection candle, bearish engulfing) in the 4,660–4,680 FVG/OB confluence zone. SL above 4,710 (invalidates structure). Targets: TP1 at 4,610, TP2 at 4,570, TP3 at 4,520 sell-side liquidity — giving a 1:3.2 R:R.<br/><br/>
+    <span style="color:#ffd700">Risk note:</span> Current price is already in discount zone (below equilibrium ~4,680). Wait for a retracement back into the FVG before entering — do not chase. A clean reaction from 4,660–4,680 confirms the continuation setup.
+  </div>
+</div>
+
+<!-- Re-analyze section -->
+<div class="card-full">
+  <div class="ctitle">Analyze a New Chart</div>
+  <div id="uploadArea">
+    <img id="imgPreview" src="" alt="chart"/>
+    <div id="dropZone" style="background:#0d1525;border:2px dashed #1e3a5f;border-radius:6px;padding:20px;text-align:center;cursor:pointer" onclick="document.getElementById('fileInput').click()">
+      <div style="font-size:28px;opacity:0.4">📊</div>
+      <div style="font-size:11px;color:#4a6a8a;margin-top:6px">Click to upload a new chart image</div>
+      <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleNewChart(event)"/>
+    </div>
+    <select id="tfNew" style="background:#0d1525;border:1px solid #1e3a5f;color:#e0e6f0;font-size:11px;padding:7px 10px;border-radius:4px;font-family:'Courier New',monospace;margin-top:8px;width:100%">
+      <option value="M1">M1 - 1 Min</option>
+      <option value="M5" selected>M5 - 5 Min</option>
+      <option value="M15">M15 - 15 Min</option>
+      <option value="M30">M30 - 30 Min</option>
+      <option value="H1">H1 - 1 Hour</option>
+      <option value="H4">H4 - 4 Hour</option>
+      <option value="D1">D1 - Daily</option>
+    </select>
+    <input type="text" id="pairNew" placeholder="Pair e.g. XAUUSD" value="XAUUSD" style="background:#0d1525;border:1px solid #1e3a5f;color:#e0e6f0;font-size:11px;padding:7px 10px;border-radius:4px;font-family:'Courier New',monospace;margin-top:8px;width:100%"/>
+    <button class="analyze-btn" id="newAnalyzeBtn" onclick="analyzeNew()">▶ ANALYZE NEW CHART</button>
+  </div>
+  <div class="spin-wrap" id="newSpinner">
+    <div class="spin"></div>
+    <div class="stxt" id="newSpTxt">SCANNING CHART...</div>
+  </div>
+  <div class="err-box" id="newErr"></div>
+  <div id="newResult"></div>
+</div>
+</div>
+
 <script>
-let chartImageB64 = null;
-let currentPair = 'XAUUSD';
+let newB64 = null;
+const spMsgs = ['SCANNING PRICE ACTION...','DETECTING ORDER BLOCKS...','MAPPING FVG ZONES...','LOCATING LIQUIDITY...','ANALYZING STRUCTURE...','CALCULATING LEVELS...'];
+let spT;
 
-function setPair(btn, pair) {
-  document.querySelectorAll('.pair-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  currentPair = pair;
-  document.getElementById('pairInput').value = pair;
-}
-
-function handleFile(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(ev) {
-    chartImageB64 = ev.target.result.split(',')[1];
-    const img = document.getElementById('chartImg') || document.createElement('img');
-    img.id = 'chartImg';
+function handleNewChart(e) {
+  const f = e.target.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    newB64 = ev.target.result.split(',')[1];
+    const img = document.getElementById('imgPreview');
     img.src = ev.target.result;
-    const zone = document.getElementById('uploadZone');
-    zone.innerHTML = '';
-    zone.appendChild(img);
-    zone.classList.add('has-image');
-    document.getElementById('analyzeBtn').disabled = false;
-    document.getElementById('clearBtn').style.display = 'inline-block';
-    document.getElementById('resultSection').style.display = 'none';
-    document.getElementById('errorBox').style.display = 'none';
+    img.style.display = 'block';
+    document.getElementById('newAnalyzeBtn').style.display = 'block';
+    document.getElementById('newErr').style.display = 'none';
+    document.getElementById('newResult').innerHTML = '';
   };
-  reader.readAsDataURL(file);
+  r.readAsDataURL(f);
 }
 
-function clearChart() {
-  chartImageB64 = null;
-  const zone = document.getElementById('uploadZone');
-  zone.innerHTML = `<input type="file" class="file-input" id="fileIn" accept="image/*" onchange="handleFile(event)" /><div class="upload-icon">📊</div><div class="upload-text"><strong>DROP YOUR CHART IMAGE HERE</strong>Click to upload · PNG, JPG, WEBP supported<br/><span style="color:#2a4a6a;font-size:11px;">TradingView screenshots work best</span></div>`;
-  zone.onclick = () => document.getElementById('fileIn').click();
-  zone.classList.remove('has-image');
-  document.getElementById('analyzeBtn').disabled = true;
-  document.getElementById('clearBtn').style.display = 'none';
-  document.getElementById('resultSection').style.display = 'none';
-  document.getElementById('errorBox').style.display = 'none';
-  document.getElementById('loadingDiv').style.display = 'none';
-}
-
-async function analyzeChart() {
-  if (!chartImageB64) return;
-  const pair = document.getElementById('pairInput').value.trim() || currentPair;
-  const tf = document.getElementById('tfSelect').value;
-  const loading = document.getElementById('loadingDiv');
-  const result = document.getElementById('resultSection');
-  const errorBox = document.getElementById('errorBox');
-  loading.style.display = 'flex';
-  result.style.display = 'none';
-  errorBox.style.display = 'none';
-  document.getElementById('analyzeBtn').disabled = true;
-
-  const loadingMsgs = ['SCANNING PRICE ACTION...','IDENTIFYING ORDER BLOCKS...','MAPPING FVG ZONES...','DETECTING LIQUIDITY...','ANALYZING MSS...','CALCULATING R:R...'];
+async function analyzeNew() {
+  if (!newB64) return;
+  const pair = document.getElementById('pairNew').value.trim() || 'XAUUSD';
+  const tf = document.getElementById('tfNew').value;
+  document.getElementById('newSpinner').style.display = 'block';
+  document.getElementById('newAnalyzeBtn').style.display = 'none';
+  document.getElementById('newErr').style.display = 'none';
+  document.getElementById('newResult').innerHTML = '';
   let mi = 0;
-  const msgInterval = setInterval(() => { document.getElementById('loadingText').textContent = loadingMsgs[mi++ % loadingMsgs.length]; }, 1800);
+  spT = setInterval(() => { document.getElementById('newSpTxt').textContent = spMsgs[mi++ % spMsgs.length]; }, 1500);
 
-  const prompt = `You are a professional Smart Money Concepts (SMC) and ICT trading analyst. Analyze this ${pair} chart on the ${tf} timeframe.
+  const prompt = `You are a professional Smart Money Concepts (SMC) and ICT trading analyst. Analyze this ${pair} ${tf} chart carefully.
 
-Provide a complete trading analysis in STRICT JSON format only. No markdown, no extra text.
+Identify: Order Blocks, Fair Value Gaps, Market Structure Shifts, Break of Structure, ChoCH, Liquidity sweeps, Equal Highs/Lows, Inducement, Premium/Discount zones.
 
-Return exactly this structure:
-{
-  "signal": "BUY" or "SELL" or "NO TRADE",
-  "bias": "BULLISH" or "BEARISH" or "NEUTRAL",
-  "entry": "price level or zone description",
-  "sl": "stop loss price or description",
-  "tp1": "take profit 1",
-  "tp2": "take profit 2",
-  "tp3": "take profit 3",
-  "rr": "e.g. 1:3.5",
-  "win_rate": "e.g. 68%",
-  "mss": "Market Structure Shift description",
-  "order_block": "OB zone description",
-  "fvg": "Fair Value Gap range",
-  "liquidity": "key liquidity levels",
-  "concepts": ["list", "of", "detected", "concepts", "from: OB, FVG, MSS, Liquidity Sweep, BOS, ChoCH, Imbalance, Premium Zone, Discount Zone, Equal Highs, Equal Lows, Inducement, Mitigation"],
-  "analysis": "3-4 sentence professional analysis describing the price action, key levels, trade rationale, and risk management. Be specific to what you see in the chart."
-}`;
+Respond ONLY with valid JSON, no markdown, no extra text:
+{"signal":"BUY or SELL or NO TRADE","bias":"BULLISH or BEARISH or NEUTRAL","entry":"price zone","sl":"stop loss price","tp1":"TP1","tp2":"TP2","tp3":"TP3","rr":"e.g. 1:3.0","win_rate":"e.g. 65%","mss":"MSS/BOS description","order_block":"OB zone with prices","fvg":"FVG price range","liquidity":"key liquidity levels","premium_discount":"zone description","concepts":["list"],"analysis":"4-5 sentence detailed analysis with specific prices"}`;
 
   try {
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model: 'claude-opus-4-5',
         max_tokens: 1000,
         messages: [{
-          role: "user",
+          role: 'user',
           content: [
-            { type: "image", source: { type: "base64", media_type: "image/jpeg", data: chartImageB64 } },
-            { type: "text", text: prompt }
+            {type: 'image', source: {type: 'base64', media_type: 'image/jpeg', data: newB64}},
+            {type: 'text', text: prompt}
           ]
         }]
       })
     });
-    clearInterval(msgInterval);
-    const data = await response.json();
-    if (data.error) throw new Error(data.error.message || 'API error');
-    const raw = data.content.map(i => i.text || '').join('');
-    const clean = raw.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(clean);
-    displayResult(parsed);
-  } catch (err) {
-    clearInterval(msgInterval);
-    loading.style.display = 'none';
-    errorBox.style.display = 'block';
-    errorBox.textContent = 'Analysis failed: ' + err.message + '. Please try again.';
-  } finally {
-    document.getElementById('analyzeBtn').disabled = false;
+    clearInterval(spT);
+    if (!resp.ok) {
+      const e = await resp.json().catch(() => ({}));
+      throw new Error(e.error?.message || 'HTTP ' + resp.status);
+    }
+    const data = await resp.json();
+    let raw = (data.content || []).map(i => i.text || '').join('');
+    const idx = raw.indexOf('{');
+    if (idx >= 0) raw = raw.slice(idx);
+    const d = JSON.parse(raw.replace(/```json|```/g, '').trim());
+    renderNewResult(d, pair, tf);
+  } catch(err) {
+    clearInterval(spT);
+    document.getElementById('newSpinner').style.display = 'none';
+    document.getElementById('newAnalyzeBtn').style.display = 'block';
+    const eb = document.getElementById('newErr');
+    eb.style.display = 'block';
+    eb.textContent = 'Error: ' + err.message;
   }
 }
 
-function displayResult(d) {
-  document.getElementById('loadingDiv').style.display = 'none';
-  document.getElementById('resultSection').style.display = 'block';
+function renderNewResult(d, pair, tf) {
+  document.getElementById('newSpinner').style.display = 'none';
+  document.getElementById('newAnalyzeBtn').style.display = 'block';
   const sig = (d.signal || 'NO TRADE').toUpperCase();
-  const badge = document.getElementById('signalBadge');
-  badge.textContent = sig;
-  badge.className = 'signal-badge ' + (sig === 'BUY' ? 'signal-buy' : sig === 'SELL' ? 'signal-sell' : 'signal-wait');
-  document.getElementById('winRateVal').textContent = d.win_rate || '—';
-  document.getElementById('rrVal').textContent = d.rr || '—';
-  document.getElementById('biasVal').textContent = (d.bias || '—').slice(0,4);
-  const rrNum = parseFloat((d.rr || '0').replace(/[^0-9.]/g, ''));
-  const rrPct = Math.min(100, (rrNum / 5) * 100);
-  document.getElementById('rrFill').style.width = rrPct + '%';
-  document.getElementById('rrFill').style.background = rrNum >= 3 ? '#00ff88' : rrNum >= 2 ? '#00d4ff' : '#ffd700';
-  document.getElementById('entryVal').textContent = d.entry || '—';
-  document.getElementById('slVal').textContent = d.sl || '—';
-  document.getElementById('tp1Val').textContent = d.tp1 || '—';
-  document.getElementById('tp2Val').textContent = d.tp2 || '—';
-  document.getElementById('tp3Val').textContent = d.tp3 || '—';
-  document.getElementById('mssVal').textContent = d.mss || '—';
-  document.getElementById('obVal').textContent = d.order_block || '—';
-  document.getElementById('fvgVal').textContent = d.fvg || '—';
-  document.getElementById('liqVal').textContent = d.liquidity || '—';
-  document.getElementById('analysisText').textContent = d.analysis || 'No analysis available.';
-  const tagsEl = document.getElementById('conceptTags');
-  tagsEl.innerHTML = '';
-  const concepts = d.concepts || [];
-  const keyConc = ['OB','FVG','MSS','BOS','ChoCH','Liquidity Sweep','Inducement','Imbalance'];
-  keyConc.forEach(c => {
-    const found = concepts.some(x => x.toUpperCase().includes(c.toUpperCase()));
-    const tag = document.createElement('span');
-    tag.className = 'concept-tag' + (found ? ' active' : '');
-    tag.textContent = c;
-    tagsEl.appendChild(tag);
-  });
-  concepts.filter(c => !keyConc.some(k => c.toUpperCase().includes(k.toUpperCase()))).forEach(c => {
-    const tag = document.createElement('span');
-    tag.className = 'concept-tag active';
-    tag.textContent = c;
-    tagsEl.appendChild(tag);
-  });
+  const isBuy = sig === 'BUY';
+  const isSell = sig === 'SELL';
+  const badgeCls = isBuy ? 'background:#00ff8822;color:#00ff88;border:1px solid #00ff8844' : isSell ? 'background:#ff004422;color:#ff4466;border:1px solid #ff446644' : 'background:#ffd70022;color:#ffd700;border:1px solid #ffd70044';
+  const concepts = (d.concepts || []);
+  const tagHTML = concepts.map(c => `<span class="ctag on">${c}</span>`).join('');
+  document.getElementById('newResult').innerHTML = `
+    <div style="margin-top:12px">
+      <div class="card" style="margin-bottom:8px">
+        <div class="ctitle">${pair} ${tf} — Result</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span style="${badgeCls};display:inline-block;padding:5px 14px;border-radius:3px;font-size:12px;font-weight:700;letter-spacing:2px">${sig}</span>
+          <div style="text-align:right"><div style="font-size:20px;font-weight:700;color:#00d4ff">${d.win_rate||'—'}</div><div style="font-size:9px;color:#4a6a8a;letter-spacing:1px">WIN RATE</div></div>
+        </div>
+        <div class="lr"><span class="ll">R:R</span><span class="lv b">${d.rr||'—'}</span></div>
+        <div class="lr"><span class="ll">BIAS</span><span class="lv ${isBuy?'g':isSell?'r':'y'}">${d.bias||'—'}</span></div>
+        <div class="lr"><span class="ll">ENTRY</span><span class="lv b">${d.entry||'—'}</span></div>
+        <div class="lr"><span class="ll">STOP LOSS</span><span class="lv r">${d.sl||'—'}</span></div>
+        <div class="lr"><span class="ll">TP1</span><span class="lv g">${d.tp1||'—'}</span></div>
+        <div class="lr"><span class="ll">TP2</span><span class="lv g">${d.tp2||'—'}</span></div>
+        <div class="lr"><span class="ll">TP3</span><span class="lv g">${d.tp3||'—'}</span></div>
+        <div class="lr"><span class="ll">MSS/BOS</span><span class="lv y">${d.mss||'—'}</span></div>
+        <div class="lr"><span class="ll">ORDER BLOCK</span><span class="lv y">${d.order_block||'—'}</span></div>
+        <div class="lr"><span class="ll">FVG</span><span class="lv b">${d.fvg||'—'}</span></div>
+        <div class="lr"><span class="ll">LIQUIDITY</span><span class="lv">${d.liquidity||'—'}</span></div>
+      </div>
+      <div class="card" style="margin-bottom:8px">
+        <div class="ctitle">Concepts Detected</div>
+        <div class="tags">${tagHTML}</div>
+      </div>
+      <div class="card">
+        <div class="ctitle">Analysis</div>
+        <div class="atxt">${d.analysis||'—'}</div>
+      </div>
+    </div>`;
 }
 </script>
